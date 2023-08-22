@@ -1,4 +1,2 @@
-# under construction
-# xpall's repo
-# useful codes for me
-# temporary placeholder for website link  
+# https://xpall.github.io/
+# Useful bits of code that I find useful
