@@ -1,0 +1,54 @@
+Sub ExportText()
+
+  Dim oPres As Presentation
+  Dim oSlides As Slides
+  Dim oSld As Slide         'Slide Object
+  Dim oShp As Shape         'Shape Object
+  Dim iFile As Integer      'File handle for output
+  iFile = FreeFile          'Get a free file number
+  Dim PathSep As String
+  Dim FileNum As Integer
+
+  #If Mac Then
+    PathSep = ":"
+  #Else
+    PathSep = "\"
+  #End If
+
+  Set oPres = ActivePresentation
+  Set oSlides = oPres.Slides
+
+  FileNum = FreeFile
+
+  'Open output file
+  ' NOTE:  errors here if file hasn't been saved
+  Open oPres.Path & PathSep & "AllText.TXT" For Output As FileNum
+
+  For Each oSld In oSlides    'Loop thru each slide
+    For Each oShp In oSld.Shapes                'Loop thru each shape on slide
+
+      'Check to see if shape has a text frame and text
+      If oShp.HasTextFrame And oShp.TextFrame.HasText Then
+        If oShp.Type = msoPlaceholder Then
+            Select Case oShp.PlaceholderFormat.Type
+                Case Is = ppPlaceholderTitle, ppPlaceholderCenterTitle
+                    Print #iFile, "Title:" & vbTab & oShp.TextFrame.TextRange
+                Case Is = ppPlaceholderBody
+                    Print #iFile, "Body:" & vbTab & oShp.TextFrame.TextRange
+                Case Is = ppPlaceholderSubtitle
+                    Print #iFile, "SubTitle:" & vbTab & oShp.TextFrame.TextRange
+                Case Else
+                    Print #iFile, "Other Placeholder:" & vbTab & oShp.TextFrame.TextRange
+            End Select
+        Else
+            Print #iFile, vbTab & oShp.TextFrame.TextRange
+        End If  ' msoPlaceholder
+      End If    ' Has text frame/Has text
+
+    Next oShp
+  Next oSld
+
+  'Close output file
+  Close #iFile
+
+End Sub
